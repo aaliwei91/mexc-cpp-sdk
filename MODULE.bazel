@@ -1,0 +1,4 @@
+# Bzlmod: use `bazel build //...` with Bazel 6+ (enable with .bazelrc or --enable_bzlmod)
+module(name = "mexc_cpp_api", version = "1.0.0")
+
+bazel_dep(name = "jsoncpp", version = "1.9.6.bcr.1")

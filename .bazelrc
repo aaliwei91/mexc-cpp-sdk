@@ -1,0 +1,5 @@
+# Enable Bzlmod so MODULE.bazel (jsoncpp) is used.
+common --enable_bzlmod
+
+# Optional: use C++17
+build --cxxopt=-std=c++17

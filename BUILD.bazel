@@ -1,0 +1,88 @@
+# MEXC C++ API - main library and examples
+# Build: bazel build //:mexc_cpp_api
+#        bazel build //:example_spot_market   (etc.)
+# Optional WebSocket: bazel build --define=MEXC_USE_WEBSOCKET=1 //...
+
+config_setting(
+    name = "use_websocket",
+    define_values = {"MEXC_USE_WEBSOCKET": "1"},
+)
+
+cc_library(
+    name = "mexc_cpp_api",
+    srcs = [
+        "src/http_client.cpp",
+        "src/signature.cpp",
+        "src/json_util.cpp",
+        "src/spot_market.cpp",
+        "src/spot_trade.cpp",
+        "src/spot_websocket.cpp",
+        "src/spot_trade_websocket.cpp",
+        "src/futures_market.cpp",
+        "src/futures_trade.cpp",
+        "src/futures_websocket.cpp",
+    ],
+    hdrs = glob(["include/mexc/**/*.hpp"]),
+    includes = ["include"],
+    copts = select({
+        ":use_websocket": ["-DMEXC_USE_WEBSOCKET=1"],
+        "//conditions:default": [],
+    }),
+    linkopts = ["-lcurl", "-lssl", "-lcrypto", "-lpthread"] + select({
+        ":use_websocket": ["-lboost_system"],
+        "//conditions:default": [],
+    }),
+    deps = ["@jsoncpp//:jsoncpp"],
+    visibility = ["//visibility:public"],
+)
+
+# --- Examples (REST, no WebSocket) ---
+cc_binary(name = "example_spot_market", srcs = ["examples/spot_market_rest.cpp"], deps = [":mexc_cpp_api"])
+cc_binary(name = "example_spot_trade", srcs = ["examples/spot_trade.cpp"], deps = [":mexc_cpp_api"])
+cc_binary(name = "example_futures_market", srcs = ["examples/futures_market.cpp"], deps = [":mexc_cpp_api"])
+cc_binary(name = "example_futures_trade", srcs = ["examples/futures_trade.cpp"], deps = [":mexc_cpp_api"])
+
+# --- Market REST tests ---
+cc_binary(name = "test_spot_market_rest", srcs = ["examples/test_spot_market_rest.cpp"], deps = [":mexc_cpp_api"])
+cc_binary(name = "test_futures_market_rest", srcs = ["examples/test_futures_market_rest.cpp"], deps = [":mexc_cpp_api"])
+
+# --- Tools ---
+cc_binary(name = "parse_rest_output", srcs = ["tools/parse_rest_output.cpp"], deps = [":mexc_cpp_api"])
+cc_binary(name = "parse_ws_jsonl", srcs = ["tools/parse_ws_jsonl.cpp"], deps = [":mexc_cpp_api"])
+
+# --- WebSocket examples (build with: bazel build --define=MEXC_USE_WEBSOCKET=1 //:example_spot_ws ...) ---
+cc_binary(
+    name = "example_spot_ws",
+    srcs = ["examples/spot_websocket.cpp"],
+    deps = [":mexc_cpp_api"],
+    copts = ["-DMEXC_USE_WEBSOCKET=1"],
+    linkopts = ["-lboost_system"],
+)
+cc_binary(
+    name = "example_spot_trade_ws",
+    srcs = ["examples/spot_trade_websocket.cpp"],
+    deps = [":mexc_cpp_api"],
+    copts = ["-DMEXC_USE_WEBSOCKET=1"],
+    linkopts = ["-lboost_system"],
+)
+cc_binary(
+    name = "example_futures_ws",
+    srcs = ["examples/futures_websocket.cpp"],
+    deps = [":mexc_cpp_api"],
+    copts = ["-DMEXC_USE_WEBSOCKET=1"],
+    linkopts = ["-lboost_system"],
+)
+cc_binary(
+    name = "test_spot_market_ws",
+    srcs = ["examples/test_spot_market_ws.cpp"],
+    deps = [":mexc_cpp_api"],
+    copts = ["-DMEXC_USE_WEBSOCKET=1"],
+    linkopts = ["-lboost_system"],
+)
+cc_binary(
+    name = "test_futures_market_ws",
+    srcs = ["examples/test_futures_market_ws.cpp"],
+    deps = [":mexc_cpp_api"],
+    copts = ["-DMEXC_USE_WEBSOCKET=1"],
+    linkopts = ["-lboost_system"],
+)

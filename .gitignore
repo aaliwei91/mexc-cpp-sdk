@@ -1,0 +1,33 @@
+# Build
+build/
+out/
+*.o
+*.a
+*.so
+*.dylib
+
+# Bazel
+.bazel-cache/
+bazel-*
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+
+# Optional: 若不想提交密钥或本地配置可取消注释
+# .env
+# *.local
